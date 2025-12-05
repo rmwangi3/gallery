@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs "node18"  // Name of NodeJS installation in Jenkins
+        nodejs "node18"  // NodeJS installed in Jenkins
     }
 
     environment {
@@ -10,7 +10,7 @@ pipeline {
     }
 
     triggers {
-        pollSCM('H/1 * * * *') // Check GitHub every minute (adjust as needed)
+        pollSCM('H/1 * * * *') // Check GitHub every minute
     }
 
     stages {
@@ -27,22 +27,23 @@ pipeline {
             }
         }
 
-        stage('Build/Start Server') {
+        // ❗ Removed server start; Jenkins should NOT run node server.js
+        stage('Build') {
             steps {
-                sh 'node server'  // Or `npm start` if you have start script
+                sh 'echo "Build step completed (no server run needed)."'
             }
         }
 
         stage('Deploy to Render') {
             steps {
-                sh "curl -X POST ${RENDER_DEPLOY_HOOK}" // Trigger Render deploy hook
+                sh "curl -X POST ${RENDER_DEPLOY_HOOK}"
             }
         }
     }
 
     post {
         success {
-            echo 'Pipeline succeeded! MILESTONE 2 should now be live.'
+            echo 'Pipeline succeeded! Render deployment triggered.'
         }
         failure {
             echo 'Pipeline failed. Check logs.'
