@@ -10,7 +10,7 @@ pipeline {
     }
 
     triggers {
-        pollSCM('H/1 * * * *') // Check GitHub every minute
+        githubPush()   // 🚀 Real-time GitHub → Jenkins automation
     }
 
     stages {
@@ -27,7 +27,6 @@ pipeline {
             }
         }
 
-        // ❗ Removed server start; Jenkins should NOT run node server.js
         stage('Build') {
             steps {
                 sh 'echo "Build step completed (no server run needed)."'
