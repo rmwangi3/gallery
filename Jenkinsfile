@@ -2,16 +2,16 @@ pipeline {
     agent any
 
     tools {
-        nodejs "node18"      // NodeJS installed in Jenkins
+        nodejs "node18"      // NodeJS installation name in Jenkins
     }
 
     environment {
         RENDER_DEPLOY_HOOK = credentials('render-deploy-hook') // Jenkins secret
     }
 
-    // 🔥 PUSH TRIGGER (your request retained)
+    // 🔥 KEEP PUSH TRIGGER
     triggers {
-        pollSCM('H/1 * * * *')   // Poll GitHub every 1 minute for new commits
+        pollSCM('H/1 * * * *')   // Poll GitHub every 1 minute
     }
 
     stages {
@@ -40,17 +40,17 @@ pipeline {
             }
             post {
 
-                //  FAILURE EMAIL
+                // ❌ FAILURE EMAIL
                 failure {
                     emailext(
                         to: 'richmond.mwangi1@student.moringaschool.com',
-                        subject: "Jenkins Tests FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                        subject: "❌ Jenkins Tests FAILED — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                         body: """
 Hello Richmond,
 
-❗ The automated tests for your *Gallery Project* have **FAILED**.
+❗ The automated tests for your **Gallery Project** have **FAILED**.
 
-You can review details and logs using the link below:
+Please review the detailed logs here:
 ${env.BUILD_URL}
 
 Best regards,  
@@ -59,17 +59,17 @@ Jenkins CI
                     )
                 }
 
-                //  SUCCESS EMAIL
+                // ✅ SUCCESS EMAIL
                 success {
                     emailext(
                         to: 'richmond.mwangi1@student.moringaschool.com',
-                        subject: "Jenkins Tests PASSED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                        subject: "✅ Jenkins Tests PASSED — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                         body: """
 Hello Richmond,
 
-Good news! All automated tests for your *Gallery Project* have **PASSED successfully**.
+🎉 Great news! All automated tests for your **Gallery Project** have **PASSED successfully**.
 
-You can view the build details here:
+You can view the build summary here:
 ${env.BUILD_URL}
 
 Best regards,  
