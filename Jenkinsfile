@@ -9,7 +9,7 @@ pipeline {
         RENDER_DEPLOY_HOOK = credentials('render-deploy-hook') // Jenkins secret
     }
 
-    // 🔥 KEEP PUSH TRIGGER
+    //  KEEP PUSH TRIGGER
     triggers {
         pollSCM('H/1 * * * *')   // Poll GitHub every 1 minute
     }
@@ -40,15 +40,15 @@ pipeline {
             }
             post {
 
-                // ❌ FAILURE EMAIL
+                // FAILURE EMAIL
                 failure {
                     emailext(
                         to: 'richmond.mwangi1@student.moringaschool.com',
-                        subject: "❌ Jenkins Tests FAILED — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                        subject: "Jenkins Tests FAILED — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                         body: """
 Hello Richmond,
 
-❗ The automated tests for your **Gallery Project** have **FAILED**.
+  The automated tests for your **Gallery Project** have **FAILED**.
 
 Please review the detailed logs here:
 ${env.BUILD_URL}
@@ -59,15 +59,15 @@ Jenkins CI
                     )
                 }
 
-                // ✅ SUCCESS EMAIL
+                // SUCCESS EMAIL
                 success {
                     emailext(
                         to: 'richmond.mwangi1@student.moringaschool.com',
-                        subject: "✅ Jenkins Tests PASSED — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                        subject: "Jenkins Tests PASSED — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                         body: """
 Hello Richmond,
 
-🎉 Great news! All automated tests for your **Gallery Project** have **PASSED successfully**.
+  Great news! All automated tests for your **Gallery Project** have **PASSED successfully**.
 
 You can view the build summary here:
 ${env.BUILD_URL}
