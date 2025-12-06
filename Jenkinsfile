@@ -67,7 +67,7 @@ Jenkins CI
                         body: """
 Hello Richmond,
 
-  Great news! All automated tests for your **Gallery Project** have **PASSED successfully**.
+  Great news!! All automated tests for your **Gallery Project** have **PASSED successfully**.
 
 You can view the build summary here:
 ${env.BUILD_URL}
