@@ -2,15 +2,16 @@ pipeline {
     agent any
 
     tools {
-        nodejs "node18"  // NodeJS installed in Jenkins
+        nodejs "node18"      // NodeJS installed in Jenkins
     }
 
     environment {
         RENDER_DEPLOY_HOOK = credentials('render-deploy-hook') // Jenkins secret
     }
 
+    // 🔥 PUSH TRIGGER (your request retained)
     triggers {
-        pollSCM('H/1 * * * *')  // 🚀 Real-time GitHub → Jenkins automation
+        pollSCM('H/1 * * * *')   // Poll GitHub every 1 minute for new commits
     }
 
     stages {
@@ -32,40 +33,52 @@ pipeline {
                 sh 'echo "Build step completed (no server run needed)."'
             }
         }
+
         stage('Test') {
-    steps {
-        sh 'npm test'
-    }
-    post {
-        failure {
-            emailext(
-                to: 'richmond.mwangi1@student.moringaschool.com',
-                subject: "Jenkins Tests FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """
-                Hello Richmond,
+            steps {
+                sh 'npm test'
+            }
+            post {
 
-                Your tests FAILED in Jenkins for the Gallery project.
+                //  FAILURE EMAIL
+                failure {
+                    emailext(
+                        to: 'richmond.mwangi1@student.moringaschool.com',
+                        subject: "Jenkins Tests FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                        body: """
+Hello Richmond,
 
-                Check pipeline logs: ${env.BUILD_URL}
-                """
-            )
+❗ The automated tests for your *Gallery Project* have **FAILED**.
+
+You can review details and logs using the link below:
+${env.BUILD_URL}
+
+Best regards,  
+Jenkins CI
+                        """
+                    )
+                }
+
+                //  SUCCESS EMAIL
+                success {
+                    emailext(
+                        to: 'richmond.mwangi1@student.moringaschool.com',
+                        subject: "Jenkins Tests PASSED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                        body: """
+Hello Richmond,
+
+Good news! All automated tests for your *Gallery Project* have **PASSED successfully**.
+
+You can view the build details here:
+${env.BUILD_URL}
+
+Best regards,  
+Jenkins CI
+                        """
+                    )
+                }
+            }
         }
-        success {
-            emailext(
-                to: 'richmond.mwangi1@student.moringaschool.com',
-                subject: "Jenkins Tests Passed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """
-                Hello Richmond,
-
-                All tests PASSED successfully in Jenkins for the Gallery project.
-
-                Build details: ${env.BUILD_URL}
-                """
-            )
-        }
-    }
-}
-
 
         stage('Deploy to Render') {
             steps {
