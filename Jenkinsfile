@@ -7,9 +7,10 @@ pipeline {
 
     environment {
         RENDER_DEPLOY_HOOK = credentials('render-deploy-hook') // Jenkins secret
+        SLACK_CHANNEL = 'C075K9TXLK9'      // <-- Replace with your real Slack Channel ID
     }
 
-    //  KEEP PUSH TRIGGER
+    // KEEP PUSH TRIGGER
     triggers {
         pollSCM('H/1 * * * *')   // Poll GitHub every 1 minute
     }
@@ -38,9 +39,10 @@ pipeline {
             steps {
                 sh 'npm test'
             }
+
             post {
 
-                // FAILURE EMAIL
+                // FAILURE EMAIL + SLACK
                 failure {
                     emailext(
                         to: 'mwangirichmond254@gmail.com',
@@ -48,7 +50,7 @@ pipeline {
                         body: """
 Hello Richmond,
 
-  The automated tests for your **Gallery Project** have **FAILED**.
+The automated tests for your **Gallery Project** have **FAILED**.
 
 Please review the detailed logs here:
 ${env.BUILD_URL}
@@ -57,9 +59,14 @@ Best regards,
 Jenkins CI
                         """
                     )
+
+                    slackSend(
+                        channel: SLACK_CHANNEL,
+                        message: "*Tests FAILED!* — ${env.JOB_NAME} #${env.BUILD_NUMBER}\n🔗 Logs: ${env.BUILD_URL}"
+                    )
                 }
 
-                // SUCCESS EMAIL
+                // SUCCESS EMAIL + SLACK
                 success {
                     emailext(
                         to: 'mwangirichmond254@gmail.com',
@@ -67,7 +74,7 @@ Jenkins CI
                         body: """
 Hello Richmond,
 
-  Great news!! All automated tests for your **Gallery Project** have **PASSED successfully**.
+Great news!! All automated tests for your **Gallery Project** have **PASSED successfully**.
 
 You can view the build summary here:
 ${env.BUILD_URL}
@@ -75,6 +82,11 @@ ${env.BUILD_URL}
 Best regards,  
 Jenkins CI
                         """
+                    )
+
+                    slackSend(
+                        channel: SLACK_CHANNEL,
+                        message: "*Tests PASSED!* — ${env.JOB_NAME} #${env.BUILD_NUMBER}\n🔗 Build: ${env.BUILD_URL}"
                     )
                 }
             }
@@ -90,9 +102,17 @@ Jenkins CI
     post {
         success {
             echo 'Pipeline succeeded! Render deployment triggered.'
+            slackSend(
+                channel: SLACK_CHANNEL,
+                message: "*Deployment Triggered to Render* — ${env.JOB_NAME} #${env.BUILD_NUMBER}"
+            )
         }
         failure {
             echo 'Pipeline failed. Check logs.'
+            slackSend(
+                channel: SLACK_CHANNEL,
+                message: "*Pipeline FAILED!* — ${env.JOB_NAME} #${env.BUILD_NUMBER}"
+            )
         }
     }
 }
