@@ -48,7 +48,7 @@ pipeline {
                         to: 'mwangirichmond254@gmail.com',
                         subject: "Jenkins Tests FAILED — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                         body: """
-Hello Richmond,
+Hello Richmond Mwangi,
 
 The automated tests for your **Gallery Project** have **FAILED**.
 
@@ -72,7 +72,7 @@ Jenkins CI
                         to: 'mwangirichmond254@gmail.com',
                         subject: "Jenkins Tests PASSED — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                         body: """
-Hello Richmond,
+Hello Richmond Mwangi,
 
 Great news!! All automated tests for your **Gallery Project** have **PASSED successfully**.
 
