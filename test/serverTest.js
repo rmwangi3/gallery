@@ -1,4 +1,4 @@
-process.env.NODE_ENV = 'test';   
+process.env.NODE_ENV = 'test';
 
 var chai = require('chai');
 var chaiHttp = require('chai-http');
@@ -9,18 +9,22 @@ var expect = chai.expect;
 
 chai.use(chaiHttp);
 
-describe('Photos', function(){
+describe('Photos', function() {
 
-
-    it('should list ALL photos on / GET', function(done){
+    it('should load the homepage on GET /', function(done) {
         this.timeout(60000);
+
         chai.request(server)
-        .get('/')
-        .end(function(err,res){
-            res.should.have.status(200);
-            res.should.be.html;
-            res.body.should.be.a('object')
-            done();
-        })
+            .get('/')
+            .end(function(err, res) {
+                res.should.have.status(200);
+                res.should.be.html;
+
+                // IMPORTANT:
+                // Remove "res.body" checks because HTML is text, not JSON.
+                res.text.should.be.a('string'); 
+
+                done();
+            });
     });
-})
+});
