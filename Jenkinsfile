@@ -43,7 +43,7 @@ pipeline {
                 // FAILURE EMAIL
                 failure {
                     emailext(
-                        to: 'richmond.mwangi1@student.moringaschool.com',
+                        to: 'mwangirichmond254@gmail.com',
                         subject: "Jenkins Tests FAILED — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                         body: """
 Hello Richmond,
@@ -62,7 +62,7 @@ Jenkins CI
                 // SUCCESS EMAIL
                 success {
                     emailext(
-                        to: 'richmond.mwangi1@student.moringaschool.com',
+                        to: 'mwangirichmond254@gmail.com',
                         subject: "Jenkins Tests PASSED — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                         body: """
 Hello Richmond,
