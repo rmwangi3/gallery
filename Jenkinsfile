@@ -2,17 +2,17 @@ pipeline {
     agent any
 
     tools {
-        nodejs "node18"      // NodeJS installation name in Jenkins
+        nodejs "node18"
     }
 
     environment {
-        RENDER_DEPLOY_HOOK = credentials('render-deploy-hook') // Jenkins secret
-        SLACK_CHANNEL = 'C075K9TXLK9'      // <-- Replace with your real Slack Channel ID
+        RENDER_DEPLOY_HOOK = credentials('render-deploy-hook')
+        SLACK_TOKEN = credentials('slack-token')        // <-- Your Jenkins Slack bot token
+        SLACK_CHANNEL = '#jenkins-notifications'        // <-- Use Slack channel NAME, not ID
     }
 
-    // KEEP PUSH TRIGGER
     triggers {
-        pollSCM('H/1 * * * *')   // Poll GitHub every 1 minute
+        pollSCM('H/1 * * * *')
     }
 
     stages {
@@ -31,7 +31,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'echo "Build step completed (no server run needed)."'
+                sh 'echo "Build step completed."'
             }
         }
 
@@ -42,51 +42,45 @@ pipeline {
 
             post {
 
-                // FAILURE EMAIL + SLACK
                 failure {
                     emailext(
                         to: 'mwangirichmond254@gmail.com',
-                        subject: "Jenkins Tests FAILED — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                        subject: "Tests FAILED — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                         body: """
 Hello Richmond,
 
 The automated tests for your **Gallery Project** have **FAILED**.
 
-Please review the detailed logs here:
+Check the logs here:
 ${env.BUILD_URL}
-
-Best regards,  
-Jenkins CI
-                        """
+"""
                     )
 
                     slackSend(
                         channel: SLACK_CHANNEL,
-                        message: "*Tests FAILED!* — ${env.JOB_NAME} #${env.BUILD_NUMBER}\n🔗 Logs: ${env.BUILD_URL}"
+                        tokenCredentialId: 'slack-token',
+                        message: "*Tests FAILED* — ${env.JOB_NAME} #${env.BUILD_NUMBER}\n${env.BUILD_URL}"
                     )
                 }
 
-                // SUCCESS EMAIL + SLACK
                 success {
                     emailext(
                         to: 'mwangirichmond254@gmail.com',
-                        subject: "Jenkins Tests PASSED — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                        subject: "Tests PASSED — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                         body: """
 Hello Richmond,
 
-Great news!! All automated tests for your **Gallery Project** have **PASSED successfully**.
+Great news! All tests for your **Gallery Project** PASSED.
 
-You can view the build summary here:
+Build Summary:
 ${env.BUILD_URL}
-
-Best regards,  
-Jenkins CI
-                        """
+"""
                     )
 
                     slackSend(
                         channel: SLACK_CHANNEL,
-                        message: "*Tests PASSED!* — ${env.JOB_NAME} #${env.BUILD_NUMBER}\n🔗 Build: ${env.BUILD_URL}"
+                        tokenCredentialId: 'slack-token',
+                        message: "*Tests PASSED* — ${env.JOB_NAME} #${env.BUILD_NUMBER}\n${env.BUILD_URL}"
                     )
                 }
             }
@@ -102,16 +96,21 @@ Jenkins CI
     post {
         success {
             echo 'Pipeline succeeded! Render deployment triggered.'
+
             slackSend(
                 channel: SLACK_CHANNEL,
-                message: "*Deployment Triggered to Render* — ${env.JOB_NAME} #${env.BUILD_NUMBER}"
+                tokenCredentialId: 'slack-token',
+                message: "*Deployment triggered to Render* — ${env.JOB_NAME} #${env.BUILD_NUMBER}"
             )
         }
+
         failure {
-            echo 'Pipeline failed. Check logs.'
+            echo 'Pipeline failed!'
+
             slackSend(
                 channel: SLACK_CHANNEL,
-                message: "*Pipeline FAILED!* — ${env.JOB_NAME} #${env.BUILD_NUMBER}"
+                tokenCredentialId: 'slack-token',
+                message: "*Pipeline FAILED* — ${env.JOB_NAME} #${env.BUILD_NUMBER}"
             )
         }
     }
